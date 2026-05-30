@@ -1,0 +1,19 @@
+{
+  "name": "AgroCarbon - Analyse Satellite Agricole",
+  "short_name": "AgroCarbon",
+  "description": "Analyse NDVI et gestion des parcelles agricoles",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#10b981",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
