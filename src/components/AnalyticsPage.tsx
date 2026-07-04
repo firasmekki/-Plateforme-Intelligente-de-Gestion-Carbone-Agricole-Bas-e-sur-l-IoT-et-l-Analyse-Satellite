@@ -110,7 +110,7 @@ export default function AnalyticsPage() {
         </div>
         
         <div className="h-80">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height={320}>
             <LineChart data={evolutionData}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
               <XAxis 
@@ -133,32 +133,35 @@ export default function AnalyticsPage() {
                 }}
               />
               <Legend iconType="circle" wrapperStyle={{ paddingTop: 20 }} />
-              <Line 
-                type="monotone" 
-                dataKey="carbone" 
-                name="Émissions Carbone (kg)" 
-                stroke="#22c55e" 
+              <Line
+                type="monotone"
+                dataKey="carbone"
+                name="Émissions Carbone (kg)"
+                stroke="#22c55e"
                 strokeWidth={3}
                 dot={{ fill: '#22c55e', strokeWidth: 2, r: 4 }}
                 activeDot={{ r: 6 }}
+                isAnimationActive={false}
               />
-              <Line 
-                type="monotone" 
-                dataKey="eau" 
-                name="Eau (m³)" 
-                stroke="#3b82f6" 
+              <Line
+                type="monotone"
+                dataKey="eau"
+                name="Eau (m³)"
+                stroke="#3b82f6"
                 strokeWidth={3}
                 dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
                 activeDot={{ r: 6 }}
+                isAnimationActive={false}
               />
-              <Line 
-                type="monotone" 
-                dataKey="energie" 
-                name="Énergie (kWh)" 
-                stroke="#f97316" 
+              <Line
+                type="monotone"
+                dataKey="energie"
+                name="Énergie (kWh)"
+                stroke="#f97316"
                 strokeWidth={3}
                 dot={{ fill: '#f97316', strokeWidth: 2, r: 4 }}
                 activeDot={{ r: 6 }}
+                isAnimationActive={false}
               />
             </LineChart>
           </ResponsiveContainer>

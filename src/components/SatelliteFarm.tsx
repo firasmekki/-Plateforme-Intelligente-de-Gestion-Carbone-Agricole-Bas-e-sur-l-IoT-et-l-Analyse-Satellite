@@ -209,7 +209,7 @@ export default function SatelliteFarm() {
 
                 {/* Mini Chart */}
                 <div className="mt-4 h-32">
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height={128}>
                     <AreaChart data={analysis.historicalData}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
                       <XAxis 
@@ -225,12 +225,13 @@ export default function SatelliteFarm() {
                         formatter={(value: any) => value ? value.toFixed(3) : '0'}
                         labelFormatter={(value: any) => value}
                       />
-                      <Area 
-                        type="monotone" 
-                        dataKey="ndvi" 
-                        stroke="#22c55e" 
+                      <Area
+                        type="monotone"
+                        dataKey="ndvi"
+                        stroke="#22c55e"
                         fill="#22c55e"
                         fillOpacity={0.3}
+                        isAnimationActive={false}
                       />
                     </AreaChart>
                   </ResponsiveContainer>

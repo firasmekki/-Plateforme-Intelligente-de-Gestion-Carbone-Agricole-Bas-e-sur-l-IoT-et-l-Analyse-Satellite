@@ -113,7 +113,7 @@ export default function RessourcesAgricolesPage() {
         </div>
         
         <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height={256}>
             <BarChart data={resourcesData} barGap={8}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
               <XAxis 
@@ -128,8 +128,8 @@ export default function RessourcesAgricolesPage() {
                 tick={{ fill: '#6b7280', fontSize: 12 }}
               />
               <Legend iconType="circle" wrapperStyle={{ paddingTop: 20 }} />
-              <Bar dataKey="current" name="Consommation Actuelle" fill="#f97316" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="optimal" name="Consommation Optimale" fill="#22c55e" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="current" name="Consommation Actuelle" fill="#f97316" radius={[4, 4, 0, 0]} isAnimationActive={false} />
+              <Bar dataKey="optimal" name="Consommation Optimale" fill="#22c55e" radius={[4, 4, 0, 0]} isAnimationActive={false} />
             </BarChart>
           </ResponsiveContainer>
         </div>

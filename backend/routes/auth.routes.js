@@ -24,9 +24,8 @@ router.post('/register', [
 
     const { name, email, password, role = 'client' } = req.body;
 
-    // Check if user exists
-    const existingUser = await query('SELECT * FROM users WHERE email = $1', [email]);
-    if (existingUser.rows.length > 0) {
+    // Check if user already exists in mock data
+    if (mockUsers.find(u => u.email === email)) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
@@ -34,33 +33,28 @@ router.post('/register', [
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Create user
-    const result = await query(
-      'INSERT INTO users (name, email, password, role, status) VALUES ($1, $2, $3, $4, $5) RETURNING id, name, email, role, status, created_at',
-      [name, email, hashedPassword, role, role === 'admin' ? 'active' : 'pending']
-    );
-
-    const user = result.rows[0];
-
-    // Generate token
-    const token = jwt.sign(
-      { userId: user.id, email: user.email, role: user.role },
-      JWT_SECRET,
-      { expiresIn: JWT_EXPIRES_IN }
-    );
+    // Create mock user (pending approval for clients)
+    const newUser = {
+      id: mockUsers.length + 1,
+      name,
+      email,
+      password: hashedPassword,
+      role,
+      status: role === 'admin' ? 'active' : 'pending'
+    };
+    mockUsers.push(newUser);
 
     logger.info(`✅ User registered: ${email}`);
 
     res.status(201).json({
       message: 'User registered successfully',
       user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        status: user.status
-      },
-      token
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+        status: newUser.status
+      }
     });
   } catch (error) {
     logger.error('❌ Register error:', error);
@@ -75,7 +69,7 @@ const mockUsers = [
     id: 1,
     name: 'Administrateur',
     email: 'admin@agrocarbon.com',
-    password: '$2a$10$placeholder_hashed_password', // Remplacer par hash bcrypt réel
+    password: '$2a$10$4CHx.c0jW82QagcgejOPtO48tf19ktdt6lEKOHKdPh0DKzx3d884S', // admin123
     role: 'admin',
     status: 'active'
   },
@@ -83,7 +77,7 @@ const mockUsers = [
     id: 2,
     name: 'Jean Dupont',
     email: 'jean@gmail.com',
-    password: '$2a$10$placeholder_hashed_password',
+    password: '$2a$10$Pf/MHs6TXeez784xZ.k0oecSRmjTGkt.9Tq7wmnVdrrC4m0UJywCq', // client123
     role: 'client',
     status: 'active'
   },
@@ -91,7 +85,7 @@ const mockUsers = [
     id: 3,
     name: 'Marie Martin',
     email: 'marie@gmail.com',
-    password: '$2a$10$placeholder_hashed_password',
+    password: '$2a$10$Pf/MHs6TXeez784xZ.k0oecSRmjTGkt.9Tq7wmnVdrrC4m0UJywCq', // client123
     role: 'client',
     status: 'active'
   }

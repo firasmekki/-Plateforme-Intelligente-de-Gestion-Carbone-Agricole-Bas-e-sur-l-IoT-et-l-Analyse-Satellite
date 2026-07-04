@@ -28,7 +28,7 @@ export default function AdminLayout({ user, onLogout }: AdminLayoutProps) {
 
   const renderContent = () => {
     if (currentView === 'users') {
-      return <AdminUserManagement onBack={() => setCurrentView('dashboard')} />
+      return <AdminUserManagement />
     }
 
     switch (currentView) {

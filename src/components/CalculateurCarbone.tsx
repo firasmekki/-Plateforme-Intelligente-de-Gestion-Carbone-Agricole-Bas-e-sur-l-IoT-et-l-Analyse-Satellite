@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Calculator, Leaf, Droplets, Zap, Tractor, Sprout, ChevronRight, RotateCcw, Download, Info } from 'lucide-react'
+import { Calculator, Leaf, Droplets, Zap, Truck, Sprout, ChevronRight, RotateCcw, Download, Info } from 'lucide-react'
 
 interface CultureType {
   id: string
@@ -241,7 +241,7 @@ export default function CalculateurCarbone() {
 
                 <div className="bg-white rounded-2xl p-6 border border-gray-100">
                   <div className="flex items-center gap-2 mb-2">
-                    <Tractor className="w-5 h-5 text-orange-500" />
+                    <Truck className="w-5 h-5 text-orange-500" />
                     <span className="text-sm text-gray-500">Par tonne</span>
                   </div>
                   <p className="text-2xl font-bold text-gray-900">{result.emissionPerTon} kg</p>
@@ -267,7 +267,7 @@ export default function CalculateurCarbone() {
                   <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
-                        <Tractor className="w-5 h-5 text-orange-600" />
+                        <Truck className="w-5 h-5 text-orange-600" />
                       </div>
                       <span className="font-medium text-gray-700">Diesel (travail du sol)</span>
                     </div>

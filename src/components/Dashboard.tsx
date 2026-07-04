@@ -115,7 +115,7 @@ export default function Dashboard() {
           </div>
           <div className="flex gap-6">
             <div className="flex-1 h-48">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height={192}>
                 <BarChart data={carbonData}>
                   <XAxis 
                     dataKey="name" 
@@ -128,7 +128,7 @@ export default function Dashboard() {
                     tickLine={false} 
                     tick={{ fill: '#6b7280', fontSize: 12 }}
                   />
-                  <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                  <Bar dataKey="value" radius={[4, 4, 0, 0]} isAnimationActive={false}>
                     {carbonData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}

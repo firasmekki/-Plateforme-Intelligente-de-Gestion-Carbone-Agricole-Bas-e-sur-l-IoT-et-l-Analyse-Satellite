@@ -12,9 +12,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow: hidden;
-  width: 100vw;
-  height: 100vh;
+  overflow-x: hidden;
 }
 
 /* Hide scrollbars on main viewport only */
@@ -38,4 +36,64 @@ body::-webkit-scrollbar {
 .leaflet-tile-pane,
 .leaflet-overlay-pane {
   z-index: auto !important;
+}
+
+/* Fix Recharts in screenshots / print */
+@media print {
+  body {
+    overflow: visible !important;
+    height: auto !important;
+    width: auto !important;
+  }
+
+  html {
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  .recharts-responsive-container {
+    page-break-inside: avoid;
+    min-height: 10px;
+  }
+
+  .recharts-wrapper,
+  .recharts-surface {
+    overflow: visible !important;
+  }
+
+  /* Force Recharts clip animations to completed state */
+  .recharts-layer clipPath rect {
+    width: 100% !important;
+    height: 100% !important;
+  }
+}
+
+/* Prevent Recharts SVGs from collapsing to 0 when viewport reflows */
+.recharts-responsive-container {
+  min-width: 1px;
+  min-height: 1px;
+}
+
+.recharts-wrapper {
+  overflow: visible !important;
+}
+
+.recharts-surface {
+  overflow: visible !important;
+}
+
+/*
+ * Fix Recharts v3 animation clipPath bug in screenshots.
+ *
+ * Recharts v3 AreaWithAnimation wraps <StaticArea> in a <Layer> with
+ * clip-path="url(#animationClipPath-{id})". When isAnimationActive=false,
+ * the <defs> for that clipPath are never rendered → the element is hidden
+ * because the url() references a non-existent node.
+ *
+ * CSS clip-path property overrides SVG clip-path presentation attribute,
+ * so "clip-path: none !important" makes the layer always visible regardless
+ * of whether the animation defs exist or the clipRect width is still at 0.
+ */
+[clip-path^="url(#animationClipPath-"] {
+  clip-path: none !important;
 }

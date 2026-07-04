@@ -16,17 +16,24 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script>
-      // Enregistrer le Service Worker pour PWA
       if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/service-worker.js')
-            .then((registration) => {
-              console.log('✅ Service Worker enregistré:', registration.scope);
-            })
-            .catch((error) => {
-              console.log('❌ Erreur Service Worker:', error);
-            });
-        });
+        const isLocalhost = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
+        if (isLocalhost) {
+          // Dev: désinstaller tout SW existant pour éviter que le cache masque les corrections
+          navigator.serviceWorker.getRegistrations().then(regs => {
+            regs.forEach(reg => reg.unregister());
+          });
+          // Vider les caches SW stagnants
+          if (window.caches) {
+            caches.keys().then(names => names.forEach(name => caches.delete(name)));
+          }
+        } else {
+          window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/service-worker.js')
+              .then(reg => console.log('✅ Service Worker:', reg.scope))
+              .catch(err => console.log('❌ SW Error:', err));
+          });
+        }
       }
     </script>
   </body>

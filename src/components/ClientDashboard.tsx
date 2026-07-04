@@ -130,7 +130,7 @@ export default function ClientDashboard({ user }: ClientDashboardProps) {
             <h3 className="text-lg font-semibold text-gray-900">Émissions par Source (Engrais, Carburant, Eau)</h3>
           </div>
           <div className="h-48">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height={192}>
               <BarChart data={carbonData}>
                 <XAxis 
                   dataKey="name" 
@@ -143,7 +143,7 @@ export default function ClientDashboard({ user }: ClientDashboardProps) {
                   tickLine={false} 
                   tick={{ fill: '#6b7280', fontSize: 12 }}
                 />
-                <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                <Bar dataKey="value" radius={[4, 4, 0, 0]} isAnimationActive={false}>
                   {carbonData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}

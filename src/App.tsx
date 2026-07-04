@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
-import { 
-  LayoutDashboard, 
-  Leaf, 
-  Zap, 
-  Droplets, 
-  Target, 
-  FileText, 
-  BarChart3, 
+import {
+  LayoutDashboard,
+  Leaf,
+  Zap,
+  Droplets,
+  Target,
+  FileText,
+  BarChart3,
   MapPin,
   Cloud,
   Wifi,
@@ -20,7 +20,8 @@ import {
   Search,
   Bell,
   ChevronDown,
-  User
+  User,
+  Users
 } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from 'recharts'
 import IrrigationPage from './components/IrrigationPage'
@@ -36,6 +37,7 @@ import MeteoWidget from './components/MeteoWidget'
 import CapteursIoT from './components/CapteursIoT'
 import CalculateurCarbone from './components/CalculateurCarbone'
 import AdminCapteurs from './components/AdminCapteurs'
+import AdminUserManagement from './components/AdminUserManagement'
 import ClientDashboard from './components/ClientDashboard'
 import { api } from './services/api'
 
@@ -46,7 +48,7 @@ interface User {
   role: 'admin' | 'client'
   name: string
   status: 'active' | 'pending' | 'rejected'
-  createdAt?: string
+  createdAt: string
 }
 
 // Client menu items - defined outside component for use in initialization
@@ -63,48 +65,41 @@ const clientMenuItems = [
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },
 ]
 
-type View = 'dashboard' | 'carbone' | 'irrigation' | 'objectifs' | 'rapports' | 'analytics' | 'carte' | 'meteo' | 'capteurs' | 'calculateur' | 'mes-parcelles' | 'satellite-farm' | 'admin-capteurs' | 'admin-parcelles'
+type View = 'dashboard' | 'carbone' | 'irrigation' | 'objectifs' | 'rapports' | 'analytics' | 'carte' | 'meteo' | 'capteurs' | 'calculateur' | 'mes-parcelles' | 'satellite-farm' | 'admin-capteurs' | 'admin-parcelles' | 'admin-users' | 'parametres'
 
-// Login avec API Backend
+// Login / Inscription avec API Backend
 function SimpleLogin({ onLogin }: { onLogin: (user: User) => void }) {
+  const [view, setView] = useState<'login' | 'register'>('login')
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const resetForm = () => { setName(''); setEmail(''); setPassword(''); setError(''); setSuccess('') }
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')
-    
     try {
-      // Appel API Backend (via proxy Vite)
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       })
-      
       const data = await response.json()
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Erreur de connexion')
-      }
-      
-      // Sauvegarder token JWT
-      if (data.token) {
-        api.setToken(data.token)
-      }
-      
-      // Créer objet user
+      if (!response.ok) throw new Error(data.message || 'Erreur de connexion')
+      if (data.token) api.setToken(data.token)
       const user: User = {
         id: data.user.id.toString(),
         email: data.user.email,
         role: data.user.role,
         name: data.user.name,
-        status: data.user.status
+        status: data.user.status,
+        createdAt: data.user.created_at || new Date().toISOString()
       }
-      
       localStorage.setItem('agrocarbon_user', JSON.stringify(user))
       onLogin(user)
     } catch (err: any) {
@@ -114,58 +109,99 @@ function SimpleLogin({ onLogin }: { onLogin: (user: User) => void }) {
     }
   }
 
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password, role: 'client' })
+      })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.message || 'Erreur d\'inscription')
+      setSuccess('Compte créé ! En attente d\'approbation par l\'administrateur.')
+      setTimeout(() => { resetForm(); setView('login') }, 2500)
+    } catch (err: any) {
+      setError(err.message || 'Erreur lors de l\'inscription')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl shadow-xl p-8 w-full max-w-md">
+        {/* Logo */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-green-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Leaf className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">AgroCarbon</h1>
-          <p className="text-gray-500 mt-1">Plateforme agricole</p>
+          <p className="text-gray-500 mt-1">{view === 'login' ? 'Plateforme agricole' : 'Créer un compte'}</p>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <div className="p-3 bg-red-50 text-red-600 rounded-xl text-sm">
-              {error}
-            </div>
-          )}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input 
-              type="email" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@agrocarbon.com ou jean@gmail.com"
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent" 
-              disabled={loading}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
-            <input 
-              type="password" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="admin123 ou client123"
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent" 
-              disabled={loading}
-            />
-          </div>
-          <button 
-            type="submit" 
-            disabled={loading}
-            className="w-full py-3 bg-green-500 hover:bg-green-600 disabled:bg-green-300 text-white rounded-xl font-medium transition-colors"
+
+        {/* Onglets */}
+        <div className="flex bg-gray-100 rounded-xl p-1 mb-6">
+          <button
+            onClick={() => { resetForm(); setView('login') }}
+            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${view === 'login' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
           >
-            {loading ? 'Connexion...' : 'Se connecter'}
+            Connexion
           </button>
-        </form>
-        
-        <div className="mt-6 p-4 bg-gray-50 rounded-xl">
-          <p className="text-sm text-gray-600 mb-2">Comptes de test :</p>
-          <p className="text-xs text-gray-500">Admin: admin@agrocarbon.com / admin123</p>
-          <p className="text-xs text-gray-500">Client: jean@gmail.com / client123</p>
+          <button
+            onClick={() => { resetForm(); setView('register') }}
+            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${view === 'register' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+          >
+            Inscription
+          </button>
         </div>
+
+        {error && <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-xl text-sm">{error}</div>}
+        {success && <div className="mb-4 p-3 bg-green-50 text-green-700 rounded-xl text-sm">{success}</div>}
+
+        {view === 'login' ? (
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="votre@email.com" required
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent" disabled={loading} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
+              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent" disabled={loading} />
+            </div>
+            <button type="submit" disabled={loading}
+              className="w-full py-3 bg-green-500 hover:bg-green-600 disabled:bg-green-300 text-white rounded-xl font-medium transition-colors">
+              {loading ? 'Connexion...' : 'Se connecter'}
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={handleRegister} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Nom complet</label>
+              <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Jean Dupont" required minLength={2}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent" disabled={loading} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="votre@email.com" required
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent" disabled={loading} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
+              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required minLength={6}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent" disabled={loading} />
+            </div>
+            <button type="submit" disabled={loading}
+              className="w-full py-3 bg-green-500 hover:bg-green-600 disabled:bg-green-300 text-white rounded-xl font-medium transition-colors">
+              {loading ? 'Inscription...' : 'Créer mon compte'}
+            </button>
+            <p className="text-xs text-center text-gray-400">Votre compte sera activé après validation par un administrateur.</p>
+          </form>
+        )}
       </div>
     </div>
   )
@@ -185,7 +221,6 @@ function ClientLayout({ user, onLogout }: { user: User; onLogout: () => void }) 
     const saved = localStorage.getItem('client_currentView') as View
     return saved || 'dashboard'
   })
-
   // Sauvegarder la vue quand elle change + mettre à jour l'URL
   const isFirstRender = useRef(true)
   useEffect(() => {
@@ -221,7 +256,7 @@ function ClientLayout({ user, onLogout }: { user: User; onLogout: () => void }) 
       case 'analytics':
         return <AnalyticsPage />
       case 'mes-parcelles':
-        return <ClientParcelles user={user} />
+        return <ClientParcelles />
       case 'satellite-farm':
         return <SatelliteFarmV2 />
       case 'carte':
@@ -240,7 +275,7 @@ function ClientLayout({ user, onLogout }: { user: User; onLogout: () => void }) 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header Client Simplifié */}
-      <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
+      <header className="sticky top-0 z-40 h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
             <Leaf className="w-5 h-5 text-white" />
@@ -264,7 +299,7 @@ function ClientLayout({ user, onLogout }: { user: User; onLogout: () => void }) 
             <Bell className="w-5 h-5" />
             <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
           </button>
-          
+
           {/* Profile avec nom complet */}
           <div className="relative group">
             <div className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 rounded-xl p-2 transition-colors">
@@ -279,7 +314,7 @@ function ClientLayout({ user, onLogout }: { user: User; onLogout: () => void }) 
             </div>
             <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
               <button 
-                onClick={onLogout}
+                onClick={handleLogout}
                 className="w-full px-4 py-3 text-left text-red-600 hover:bg-red-50 flex items-center gap-3 transition-colors rounded-xl"
               >
                 <LogOut className="w-4 h-4" />
@@ -290,9 +325,9 @@ function ClientLayout({ user, onLogout }: { user: User; onLogout: () => void }) 
         </div>
       </header>
 
-      <div className="flex" style={{ height: 'calc(100vh - 64px)' }}>
+      <div className={`flex ${currentView === 'satellite-farm' ? 'h-[calc(100vh-4rem)]' : ''}`}>
         {/* Sidebar Client */}
-        <aside className="w-64 bg-white h-full flex flex-col border-r border-gray-200">
+        <aside className={`w-64 bg-white flex flex-col border-r border-gray-200 ${currentView === 'satellite-farm' ? 'h-full' : 'sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto self-start'}`}>
           <div className="p-6 flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
               <Leaf className="w-6 h-6 text-white" />
@@ -326,13 +361,13 @@ function ClientLayout({ user, onLogout }: { user: User; onLogout: () => void }) 
 
         </aside>
 
-        <main className="flex-1 overflow-hidden relative">
+        <main className={currentView === 'satellite-farm' ? 'flex-1 overflow-hidden relative' : 'flex-1'}>
           {currentView === 'satellite-farm' ? (
             <div className="absolute inset-0">
               <SatelliteFarmV2 />
             </div>
           ) : (
-            <div className="h-full overflow-y-auto">
+            <div>
               {renderContent()}
             </div>
           )}
@@ -349,7 +384,6 @@ function AdminLayout({ user, onLogout }: { user: User; onLogout: () => void }) {
     const saved = localStorage.getItem('admin_currentView') as View
     return saved || 'dashboard'
   })
-
   // Sauvegarder la vue quand elle change + mettre à jour l'URL
   useEffect(() => {
     localStorage.setItem('admin_currentView', currentView)
@@ -368,6 +402,7 @@ function AdminLayout({ user, onLogout }: { user: User; onLogout: () => void }) {
     { id: 'admin-parcelles', label: 'Toutes les Parcelles', icon: MapPin, badge: 'ADMIN' },
     { id: 'meteo', label: 'Météo', icon: Cloud },
     { id: 'admin-capteurs', label: 'Gestion Capteurs', icon: Wifi, badge: 'ADMIN' },
+    { id: 'admin-users', label: 'Demandes de Comptes', icon: Users, badge: 'ADMIN' },
     { id: 'calculateur', label: 'Calculateur', icon: Calculator },
   ]
 
@@ -397,6 +432,10 @@ function AdminLayout({ user, onLogout }: { user: User; onLogout: () => void }) {
         return <AdminCapteurs />
       case 'admin-parcelles':
         return <AdminParcelles />
+      case 'admin-users':
+        return <AdminUserManagement />
+      case 'parametres':
+        return <ParametresPage user={user} onLogout={onLogout} />
       default:
         return <DashboardOverview />
     }
@@ -405,7 +444,7 @@ function AdminLayout({ user, onLogout }: { user: User; onLogout: () => void }) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header Original */}
-      <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
+      <header className="sticky top-0 z-40 h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
         {/* Left side - Navigation */}
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3 mr-4">
@@ -480,9 +519,9 @@ function AdminLayout({ user, onLogout }: { user: User; onLogout: () => void }) {
       </header>
 
       {/* Main */}
-      <div className="flex">
+      <div className="flex min-h-[calc(100vh-4rem)]">
         {/* Sidebar */}
-        <aside className="w-64 bg-white h-screen flex flex-col border-r border-gray-200">
+        <aside className="w-64 bg-white flex flex-col border-r border-gray-200 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto self-start">
           {/* Logo */}
           <div className="p-6 flex items-center gap-3">
             <div className="w-10 h-10 bg-green-600 rounded-xl flex items-center justify-center">
@@ -531,7 +570,12 @@ function AdminLayout({ user, onLogout }: { user: User; onLogout: () => void }) {
 
           {/* General Items */}
           <div className="px-4 pb-6">
-            <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl mb-1 text-gray-600 hover:bg-gray-100 transition-colors text-left">
+            <button
+              onClick={() => setCurrentView('parametres')}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl mb-1 transition-colors text-left ${
+                currentView === 'parametres' ? 'bg-green-500 text-white' : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
               <Settings className="w-5 h-5" />
               <span className="font-medium">Paramètres</span>
             </button>
@@ -543,9 +587,98 @@ function AdminLayout({ user, onLogout }: { user: User; onLogout: () => void }) {
         </aside>
 
         {/* Content */}
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1">
           {renderContent()}
         </main>
+      </div>
+    </div>
+  )
+}
+
+// Page Paramètres Admin
+function ParametresPage({ user, onLogout }: { user: User; onLogout: () => void }) {
+  return (
+    <div className="p-8 max-w-3xl mx-auto">
+      <h2 className="text-2xl font-bold text-gray-900 mb-1">Paramètres</h2>
+      <p className="text-gray-500 mb-8">Gérez votre compte et vos préférences</p>
+
+      {/* Profil */}
+      <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
+        <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <User className="w-5 h-5 text-green-500" /> Profil
+        </h3>
+        <div className="grid grid-cols-1 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-600 mb-1">Nom</label>
+            <input
+              type="text"
+              defaultValue={user.name}
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-600 mb-1">Email</label>
+            <input
+              type="email"
+              defaultValue={user.email}
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-600 mb-1">Rôle</label>
+            <input
+              type="text"
+              value={user.role === 'admin' ? 'Administrateur' : 'Client'}
+              disabled
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm bg-gray-50 text-gray-400 cursor-not-allowed"
+            />
+          </div>
+        </div>
+        <button className="mt-4 px-5 py-2.5 bg-green-500 hover:bg-green-600 text-white text-sm rounded-xl font-medium transition-colors">
+          Enregistrer les modifications
+        </button>
+      </div>
+
+      {/* Sécurité */}
+      <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
+        <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <Settings className="w-5 h-5 text-green-500" /> Sécurité
+        </h3>
+        <div className="grid grid-cols-1 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-600 mb-1">Mot de passe actuel</label>
+            <input
+              type="password"
+              placeholder="••••••••"
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-600 mb-1">Nouveau mot de passe</label>
+            <input
+              type="password"
+              placeholder="••••••••"
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
+        </div>
+        <button className="mt-4 px-5 py-2.5 bg-green-500 hover:bg-green-600 text-white text-sm rounded-xl font-medium transition-colors">
+          Changer le mot de passe
+        </button>
+      </div>
+
+      {/* Déconnexion */}
+      <div className="bg-white rounded-2xl border border-red-100 p-6">
+        <h3 className="text-base font-semibold text-gray-900 mb-2 flex items-center gap-2">
+          <LogOut className="w-5 h-5 text-red-500" /> Session
+        </h3>
+        <p className="text-sm text-gray-500 mb-4">Déconnectez-vous de votre compte administrateur.</p>
+        <button
+          onClick={onLogout}
+          className="px-5 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm rounded-xl font-medium transition-colors"
+        >
+          Se déconnecter
+        </button>
       </div>
     </div>
   )
@@ -639,12 +772,12 @@ function DashboardOverview() {
             <h3 className="text-lg font-semibold text-gray-900">Émissions par Exploitation</h3>
           </div>
           <div className="flex gap-6">
-            <div className="flex-1 h-48">
-              <ResponsiveContainer width="100%" height="100%">
+            <div className="flex-1 min-w-0 h-48">
+              <ResponsiveContainer width="100%" height={192}>
                 <BarChart data={carbonData}>
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
                   <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
-                  <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                  <Bar dataKey="value" radius={[4, 4, 0, 0]} isAnimationActive={false}>
                     {carbonData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}

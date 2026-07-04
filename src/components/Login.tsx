@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Leaf, Mail, Lock, UserPlus, Shield, User as UserIcon, AlertCircle, CheckCircle } from 'lucide-react'
-import { login, registerClient, initAuth, type User } from '../auth/authStore'
+import { login, registerClient, type User } from '../auth/authStore'
 
 interface LoginProps {
   onLogin: (user: User) => void
@@ -18,9 +18,6 @@ export default function Login({ onLogin }: LoginProps) {
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
 
-  // Initialiser l'auth au chargement
-  initAuth()
-
   const handleSelectRole = (role: 'admin' | 'client') => {
     setSelectedRole(role)
     setView('login')
@@ -33,7 +30,7 @@ export default function Login({ onLogin }: LoginProps) {
     setLoading(true)
     setError('')
     
-    const result = login(email, password)
+    const result = await login(email, password)
     
     if (result.success && result.user) {
       // Vérifier que le rôle correspond
@@ -55,7 +52,7 @@ export default function Login({ onLogin }: LoginProps) {
     setLoading(true)
     setError('')
     
-    const result = registerClient(email, password, name)
+    const result = await registerClient(email, password, name)
     
     if (result.success) {
       setSuccess(result.message)

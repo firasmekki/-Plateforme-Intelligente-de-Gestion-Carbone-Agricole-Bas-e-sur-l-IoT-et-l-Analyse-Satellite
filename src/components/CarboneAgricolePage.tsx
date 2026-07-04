@@ -158,7 +158,7 @@ export default function CarboneAgricolePage() {
           </div>
           
           <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height={256}>
               <BarChart data={emissionsData} barGap={8}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
                 <XAxis 
@@ -176,9 +176,9 @@ export default function CarboneAgricolePage() {
                   iconType="circle"
                   wrapperStyle={{ paddingTop: 20 }}
                 />
-                <Bar dataKey="current" name="Actuel" fill="#ef4444" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="target" name="Objectif" fill="#22c55e" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="avg" name="Moyenne" fill="#6b7280" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="current" name="Actuel" fill="#ef4444" radius={[4, 4, 0, 0]} isAnimationActive={false} />
+                <Bar dataKey="target" name="Objectif" fill="#22c55e" radius={[4, 4, 0, 0]} isAnimationActive={false} />
+                <Bar dataKey="avg" name="Moyenne" fill="#6b7280" radius={[4, 4, 0, 0]} isAnimationActive={false} />
               </BarChart>
             </ResponsiveContainer>
           </div>

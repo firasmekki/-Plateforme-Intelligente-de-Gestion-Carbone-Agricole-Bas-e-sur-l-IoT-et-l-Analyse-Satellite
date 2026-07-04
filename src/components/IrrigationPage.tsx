@@ -120,7 +120,7 @@ export default function IrrigationPage() {
         </div>
         
         <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height={256}>
             <AreaChart data={irrigationData}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
               <XAxis 
@@ -135,8 +135,8 @@ export default function IrrigationPage() {
                 tick={{ fill: '#6b7280', fontSize: 12 }}
               />
               <Legend iconType="circle" wrapperStyle={{ paddingTop: 20 }} />
-              <Area type="monotone" dataKey="actuel" name="Consommation Actuelle (m³)" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.3} />
-              <Area type="monotone" dataKey="optimal" name="Objectif (m³)" stroke="#22c55e" fill="#22c55e" fillOpacity={0.1} />
+              <Area type="monotone" dataKey="actuel" name="Consommation Actuelle (m³)" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.3} isAnimationActive={false} />
+              <Area type="monotone" dataKey="optimal" name="Objectif (m³)" stroke="#22c55e" fill="#22c55e" fillOpacity={0.1} isAnimationActive={false} />
             </AreaChart>
           </ResponsiveContainer>
         </div>

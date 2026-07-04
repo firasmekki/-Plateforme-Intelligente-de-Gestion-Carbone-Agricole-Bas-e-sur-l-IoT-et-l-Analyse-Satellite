@@ -11,7 +11,7 @@ export default function SustainabilityChart() {
     <div className="flex flex-col items-center">
       {/* Chart container */}
       <div className="relative w-48 h-48">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height={192}>
           <PieChart>
             <Pie
               data={data}
@@ -23,6 +23,7 @@ export default function SustainabilityChart() {
               dataKey="value"
               startAngle={90}
               endAngle={-270}
+              isAnimationActive={false}
             >
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
