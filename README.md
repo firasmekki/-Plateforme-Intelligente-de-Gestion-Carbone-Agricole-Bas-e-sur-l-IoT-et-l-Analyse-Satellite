@@ -23,47 +23,36 @@
 
 > **Dashboard Admin** — Vue d'ensemble des émissions carbone, KPIs et activité de l'équipe
 
-<!-- Remplacer par votre capture : admin connecté → Dashboard -->
-![Dashboard Admin](docs/screenshots/admin-dashboard.png)
+<img width="2600" height="2324" alt="localhost_4000_client (10)" src="https://github.com/user-attachments/assets/050c854b-75a2-437f-882a-796d64f9e930" />
+
 
 > **Gestion des Demandes de Comptes** — Approbation / rejet des inscriptions clients
+<img width="2880" height="1938" alt="localhost_4000_admin_admin-users (1)" src="https://github.com/user-attachments/assets/e3d2f2eb-ac56-48e5-b9f1-395ecfbce79a" />
 
-<!-- Remplacer par votre capture : admin → Demandes de Comptes -->
-![Admin User Management](docs/screenshots/admin-users.png)
 
 > **Carbone Agricole** — Suivi détaillé des émissions par exploitation et par type de culture
+<img width="2600" height="2308" alt="localhost_4000_client (11)" src="https://github.com/user-attachments/assets/09f2a72f-0512-4a95-b775-166ba4eb37b2" />
 
-<!-- Remplacer par votre capture : admin → Carbone Agricole -->
-![Carbone Agricole](docs/screenshots/admin-carbone.png)
 
 > **Gestion des Capteurs IoT** — Supervision des capteurs terrain et données temps réel
-
-<!-- Remplacer par votre capture : admin → Gestion Capteurs -->
-![Admin Capteurs](docs/screenshots/admin-capteurs.png)
+<img width="2600" height="1734" alt="localhost_4000_client (17)" src="https://github.com/user-attachments/assets/a0219841-eb57-40f7-a6ec-29a1a5ea9c4a" />
 
 ---
 
 ### Interface Client
+ 
+<img width="2600" height="2144" alt="localhost_4000_client" src="https://github.com/user-attachments/assets/3b862017-1a01-49c7-b448-4306e0b6207f" />
 
-> **Dashboard Client** — Résumé personnalisé de l'exploitation, alertes et recommandations
-
-<!-- Remplacer par votre capture : client connecté → Dashboard -->
-![Dashboard Client](docs/screenshots/client-dashboard.png)
 
 > **Satellite Farm** — Carte interactive avec analyse NDVI des parcelles et IA agronomique
+<img width="2600" height="1678" alt="localhost_4000_client (4)" src="https://github.com/user-attachments/assets/cf746193-daff-4c27-be76-d80a4ec59782" />
 
-<!-- Remplacer par votre capture : client → Satellite Farm (champ tracé + onglet Analyse IA) -->
-![Satellite Farm](docs/screenshots/client-satellite.png)
 
 > **Calculateur Carbone** — Estimation de l'empreinte carbone par poste (carburant, élevage, intrants…)
-
-<!-- Remplacer par votre capture : client → Calculateur -->
-![Calculateur Carbone](docs/screenshots/client-calculateur.png)
+<img width="2600" height="3096" alt="localhost_4000_client (7)" src="https://github.com/user-attachments/assets/01107686-6c7b-4c4c-9550-e9da98d36836" />
 
 > **Capteurs IoT** — Suivi des données terrain (température, humidité, CO₂…)
-
-<!-- Remplacer par votre capture : client → Capteurs IoT -->
-![Capteurs IoT](docs/screenshots/client-capteurs.png)
+<img width="2600" height="1678" alt="localhost_4000_client (6)" src="https://github.com/user-attachments/assets/52d3c9ed-6103-42e4-9217-e0e2f1824f31" />
 
 ---
 
@@ -355,26 +344,4 @@ docs/screenshots/
 ├── client-satellite.png     # Satellite Farm (carte + analyse IA)
 ├── client-calculateur.png   # Calculateur carbone
 └── client-capteurs.png      # Capteurs IoT client
-```
-
-Raccourci Chrome pour capturer : `F12` → onglet **Device** → icône téléphone → plein écran → clic droit → *Capture screenshot*.
-
----
-
-## 👨‍💻 Auteur
-
-**Firas Mekki**
-- GitHub : [@firasmekki](https://github.com/firasmekki)
-- Email : bennanibaya@gmail.com
-
----
-
-## 📄 Licence
-
-Ce projet est sous licence **MIT** — voir le fichier [LICENSE](LICENSE) pour plus de détails.
-
----
-
-<div align="center">
-<sub>Développé avec ❤️ pour une agriculture durable et intelligente</sub>
-</div>
+``
